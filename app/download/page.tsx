@@ -3,6 +3,11 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Baixar App | Eventus",
   description: "Baixe o aplicativo Eventus e tenha acesso rápido aos melhores eventos na sua região.",
+  openGraph: {
+    title: "Baixar App | Eventus",
+    description: "Baixe o aplicativo Eventus e tenha acesso rápido aos melhores eventos na sua região.",
+    type: "website",
+  },
 };
 
 export default function DownloadPage() {

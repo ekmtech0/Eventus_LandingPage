@@ -5,6 +5,11 @@ import { MOCK_EVENTS } from "@/constants";
 export const metadata: Metadata = {
   title: "Explorar Eventos | Eventus",
   description: "Veja todos os eventos disponíveis e descubra experiências próximas a você.",
+  openGraph: {
+    title: "Explorar Eventos | Eventus",
+    description: "Veja todos os eventos disponíveis e descubra experiências próximas a você.",
+    type: "website",
+  },
 };
 
 export default function ExplorarPage() {
