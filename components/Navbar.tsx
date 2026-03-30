@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import Image from "next/image";
 import { usePathname } from 'next/navigation';
 import { Calendar, Search, Download, Menu, X } from 'lucide-react';
 import { useState } from 'react';
@@ -26,13 +25,6 @@ export const Navbar: React.FC = () => {
           <Link href="/" className="flex items-center gap-2 group">
             <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center group-hover:rotate-12 transition-transform">
               <Calendar className="text-white w-6 h-6" />
-                 <Image
-                             src={''}
-                             alt="Logo Eventus"
-                             width={150}
-                             height={40}
-                             className="h-10 w-auto"
-                           />
             </div>
             <span className="text-2xl font-black tracking-tighter text-slate-900">
               Eventus

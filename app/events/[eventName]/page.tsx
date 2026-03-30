@@ -14,16 +14,36 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   try {
     const event = await getEventByName(name);
 
+    const canonicalUrl = `https://eventusangola.com/events/${encodeURIComponent(name)}`;
+    const coverImage = event.imgs?.urls?.[event.imgs.capa];
+
     return {
-      title: `${event.title} – Eventus`,
+      title: event.title,
       description: event.descricao,
+      keywords: [
+        event.title,
+        event.categoria,
+        event.manualLocation?.municipio,
+        "eventos Angola",
+        "eventus",
+      ].filter(Boolean) as string[],
+      alternates: {
+        canonical: canonicalUrl,
+      },
       openGraph: {
         title: `${event.title} – Eventus`,
         description: event.descricao,
+        url: canonicalUrl,
         type: "article",
-        images: event.imgs?.urls?.[event.imgs.capa]
-          ? [event.imgs.urls[event.imgs.capa]]
-          : undefined,
+        images: coverImage
+          ? [{ url: coverImage, width: 1200, height: 630, alt: event.title }]
+          : [{ url: "/og-image.png", width: 1200, height: 630, alt: event.title }],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: `${event.title} – Eventus`,
+        description: event.descricao,
+        images: coverImage ? [coverImage] : ["/og-image.png"],
       },
     };
   } catch {

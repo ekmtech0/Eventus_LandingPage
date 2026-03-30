@@ -16,6 +16,7 @@ type pageProps = {
 export default function EventView({event}: pageProps) {
 
   const capaUrl = event.imgs?.urls?.[event.imgs?.capa ?? 0];
+  const userPhotoUrl = event.userPhotoUrl?.trim();
 
   return (
     <div>
@@ -33,13 +34,20 @@ export default function EventView({event}: pageProps) {
             <div className="flex justify-between items-center">
               
               <div className="flex items-center gap-4">
-                <Image
-                  src={event.userPhotoUrl}
-                  alt="User"
-                  width={40}
-                  height={40}
-                  className="rounded-full border-2 border-primaria object-cover"
-                />
+                {userPhotoUrl ? (
+                  <Image
+                    src={userPhotoUrl}
+                    alt="User"
+                    width={40}
+                    height={40}
+                    className="rounded-full border-2 border-primaria object-cover"
+                  />
+                ) : (
+                  <div
+                    aria-label="User"
+                    className="h-10 w-10 rounded-full border-2 border-primaria bg-slate-200"
+                  />
+                )}
 
                 <div>
                   <div className="flex gap-2 items-center">

@@ -1,8 +1,31 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Baixar App | Eventus",
-  description: "Baixe o aplicativo Eventus e tenha acesso rápido aos melhores eventos na sua região.",
+  title: "Baixar App",
+  description:
+    "Baixe o aplicativo Eventus para Android ou iOS e tenha acesso rápido aos melhores eventos em Angola.",
+  keywords: [
+    "baixar app eventus", "eventus android", "eventus ios",
+    "app de eventos Angola", "google play eventus", "app store eventus",
+  ],
+  alternates: {
+    canonical: "https://eventusangola.com/download",
+  },
+  openGraph: {
+    title: "Baixar App Eventus – Android & iOS",
+    description:
+      "Baixe o aplicativo Eventus para Android ou iOS e tenha acesso rápido aos melhores eventos em Angola.",
+    url: "https://eventusangola.com/download",
+    type: "website",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Baixar App Eventus" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Baixar App Eventus – Android & iOS",
+    description:
+      "Baixe o aplicativo Eventus para Android ou iOS e tenha acesso rápido aos melhores eventos em Angola.",
+    images: ["/og-image.png"],
+  },
 };
 
 export default function DownloadPage() {

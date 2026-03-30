@@ -14,34 +14,48 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://eventusangola.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: "Eventus – Descubra eventos locais",
+  title: {
+    default: "Eventus – Descubra eventos locais em Angola",
+    template: "%s | Eventus",
+  },
   description:
     "Encontre os melhores eventos na sua região e participe de experiências incríveis com a Eventus.",
+  keywords: [
+    "eventos", "Angola", "Luanda", "concertos", "festivais",
+    "workshops", "conferências", "eventus",
+  ],
+  authors: [{ name: "Eventus" }],
+  creator: "Eventus",
   openGraph: {
-    title: "Eventus – Descubra eventos locais",
+    title: "Eventus – Descubra eventos locais em Angola",
     description:
       "Encontre os melhores eventos na sua região e participe de experiências incríveis com a Eventus.",
     type: "website",
-    locale: "pt-BR",
+    locale: "pt-PT",
+    siteName: "Eventus",
     url: siteUrl,
     images: [
       {
-        url: `${siteUrl}/og-image.png`,
+        url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Eventus - Descubra eventos locais",
+        alt: "Eventus – Descubra eventos locais em Angola",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Eventus – Descubra eventos locais",
+    title: "Eventus – Descubra eventos locais em Angola",
     description:
       "Encontre os melhores eventos na sua região e participe de experiências incríveis com a Eventus.",
+    images: ["/og-image.png"],
+  },
+  alternates: {
+    canonical: siteUrl,
   },
 };
 
