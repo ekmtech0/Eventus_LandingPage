@@ -1,33 +1,60 @@
-import { MetadataRoute } from 'next'
-import { MOCK_EVENTS } from '@/constants'
+import type { MetadataRoute } from "next";
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
+type SitemapEvent = {
+  eventName?: string;
+  data?: string;
+};
 
-  return [
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://eventusangola.com";
+const EVENTS_API_URL = "https://eventus-1mt4.onrender.com/api/events";
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const now = new Date();
+
+  const staticRoutes: MetadataRoute.Sitemap = [
     {
-      url: baseUrl,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
+      url: `${SITE_URL}/`,
+      lastModified: now,
+      changeFrequency: "daily",
       priority: 1,
     },
     {
-      url: `${baseUrl}/download`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/explorar`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
+      url: `${SITE_URL}/explorar`,
+      lastModified: now,
+      changeFrequency: "daily",
       priority: 0.9,
     },
-    ...MOCK_EVENTS.map(event => ({
-      url: `${baseUrl}/events/${event.eventName}`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly' as const,
-      priority: 0.8,
-    }))
-  ]
+    {
+      url: `${SITE_URL}/download`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+  ];
+
+  try {
+    const response = await fetch(EVENTS_API_URL, {
+      next: { revalidate: 3600 },
+    });
+
+    if (!response.ok) {
+      return staticRoutes;
+    }
+
+    const payload = (await response.json()) as SitemapEvent[] | { value?: SitemapEvent[] };
+    const events = Array.isArray(payload) ? payload : payload.value ?? [];
+
+    const eventRoutes: MetadataRoute.Sitemap = events
+      .filter((event) => Boolean(event.eventName))
+      .map((event) => ({
+        url: `${SITE_URL}/events/${encodeURIComponent(event.eventName as string)}`,
+        lastModified: event.data ? new Date(event.data) : now,
+        changeFrequency: "weekly",
+        priority: 0.8,
+      }));
+
+    return [...staticRoutes, ...eventRoutes];
+  } catch {
+    return staticRoutes;
+  }
 }
