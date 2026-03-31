@@ -54,6 +54,9 @@ export const metadata: Metadata = {
       "Encontre os melhores eventos na sua região e participe de experiências incríveis com a Eventus.",
     images: ["/og-image.png"],
   },
+  verification: {
+    google: "3X96qzT02_HVMqqdl78N-PR6J6P_7KMWEOJjtyc8wAc",
+  },
   alternates: {
     canonical: siteUrl,
   },
