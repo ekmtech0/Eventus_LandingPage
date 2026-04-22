@@ -1,12 +1,13 @@
 import Link from 'next/link';
 import { EventCard } from "@/components/EventCard";
-import { MOCK_EVENTS } from "@/constants";
 import { Calendar, Search, Smartphone, Menu, X, Download, ArrowRight } from 'lucide-react';
+import { getEvents } from '@/services/GetEvent';
 
 
 
+export const FeaturedEventsSection: React.FC = async () => {
+  const events = await getEvents();
 
-export const FeaturedEventsSection: React.FC = () => {
   return(
    <section className="bg-white">
         <div className="section-container p-16">
@@ -23,7 +24,7 @@ export const FeaturedEventsSection: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {MOCK_EVENTS.map((event) => (
+            {events?.map((event) => (
               <EventCard key={event.eventId} event={event} />
             ))}
           </div>

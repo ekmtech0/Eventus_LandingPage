@@ -3,6 +3,9 @@ import { cache } from "react";
 import getEventByName from "@/services/GetEvent";
 import EventView from "@/components/EventView";
 
+// Revalidate a cada 60 segundos (ISR)
+export const revalidate = 60;
+
 type PageProps = {
   params: Promise<{
     eventName: string;

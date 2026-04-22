@@ -9,7 +9,7 @@ export default async function getEventByName(eventName: string): Promise<EventRe
         
         const evento = await fetch(apiUrl, {
             method: "GET",
-            cache: "no-store",
+            next: { revalidate: 60 }, // ISR: revalidate a cada 60 segundos
             headers: {
                 "Content-Type": "application/json",
             }
@@ -28,6 +28,33 @@ export default async function getEventByName(eventName: string): Promise<EventRe
     }
     catch (error) {
         console.error("Erro ao buscar evento:", error)
+        return undefined;
+    }
+}
+
+export async function getEvents(): Promise<EventResponse[] | undefined> {
+    try {
+        const apiUrl = `https://eventus-1mt4.onrender.com/api/events/`;
+        const response = await fetch(apiUrl, {
+            method: "GET",
+            next: { revalidate: 60 }, // ISR: revalidate a cada 60 segundos
+            headers: {
+                "Content-Type": "application/json",
+            }
+        });
+
+        if (!response.ok) {
+            console.error(`Erro ao buscar eventos: Status ${response.status}`);
+            return undefined;
+        }
+
+        const eventsResponse = await response.json() as EventResponse[];
+
+        console.log("Eventos recebidos:", eventsResponse);
+
+        return eventsResponse;
+    } catch (error) {
+        console.error("Erro ao buscar eventos:", error);
         return undefined;
     }
 }

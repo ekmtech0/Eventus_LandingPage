@@ -34,7 +34,7 @@ export function EventCard({ event }: EventCardProps) {
           <h3 className="mt-3 text-xl font-bold text-slate-900">{event.title}</h3>
           <p className="mt-2 text-sm text-slate-600">{event.descricao}</p>
           <p className="mt-4 text-sm font-semibold text-primary">
-            {event.manualLocation?.municipio}
+            {event.placeCity}, {event.placeAddress}
           </p>
         </div>
       </Link>

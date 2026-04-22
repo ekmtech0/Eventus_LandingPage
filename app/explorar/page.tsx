@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
 import { EventCard } from "@/components/EventCard";
-import { MOCK_EVENTS } from "@/constants";
+import { getEvents } from "@/services/GetEvent";
+
+// Revalidate a cada 60 segundos (ISR)
+export const revalidate = 60;
 
 export const metadata: Metadata = {
+  
   title: "Explorar Eventos",
   description:
     "Veja todos os eventos disponíveis em Angola, filtre por categoria e descubra experiências próximas a você.",
@@ -30,7 +34,10 @@ export const metadata: Metadata = {
   },
 };
 
-export default function ExplorarPage() {
+export default async function ExplorarPage() {
+
+  const events = await getEvents();
+
   return (
     <div className="section-container py-20">
       <header className="mb-12">
@@ -41,7 +48,7 @@ export default function ExplorarPage() {
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {MOCK_EVENTS.map((event) => (
+        {events?.map((event) => (
           <EventCard key={event.eventId} event={event} />
         ))}
       </div>

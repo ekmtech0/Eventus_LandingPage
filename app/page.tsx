@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Home } from "./pages/Home";
 
+// Revalidate a cada 1 hora para a home (ISR)
+export const revalidate = 3600;
+
 export const metadata: Metadata = {
   title: "Descubra eventos incríveis perto de você",
   description:
