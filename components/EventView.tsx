@@ -10,13 +10,13 @@ import { Event } from "@/types/Eventtype";
 import Image from "next/image";
 
 type pageProps = {
-    event : Event
+  event: Event
 }
 
-export default function EventView({event}: pageProps) {
+export default function EventView({ event }: pageProps) {
 
   const capaUrl = event.imgs?.urls?.[event.imgs?.capa ?? 0];
-  const userPhotoUrl = event.userPhotoUrl?.trim();
+  const userPhotoUrl = event.userPhotoUrl
 
   return (
     <div>
@@ -28,24 +28,26 @@ export default function EventView({event}: pageProps) {
 
       <div className="rounded-2xl mt-1 py-4 border border-gray-300 bg-white shadow">
         <div className="py-4 w-full flex flex-col rounded-xl bg-white">
-          
+
           {/* Header */}
           <div className="px-4">
             <div className="flex justify-between items-center">
-              
+
               <div className="flex items-center gap-4">
                 {userPhotoUrl ? (
-                  <Image
-                    src={userPhotoUrl}
-                    alt="User"
-                    width={40}
-                    height={40}
-                    className="rounded-full border-2 border-primaria object-cover"
-                  />
+                  <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary">
+                    <Image
+                      src={userPhotoUrl}
+                      alt="User"
+                      width={40}
+                      height={40}
+                      className="object-cover w-full h-full"
+                    />
+                  </div>
                 ) : (
                   <div
                     aria-label="User"
-                    className="h-10 w-10 rounded-full border-2 border-primaria bg-slate-200"
+                    className="h-10 w-10 rounded-full border-2 border-primary bg-slate-200"
                   />
                 )}
 
@@ -60,13 +62,13 @@ export default function EventView({event}: pageProps) {
                   </div>
 
                   <p className="text-[12px] text-gray-500">
-                    {event.manualLocation?.municipio}
+                    {event.placeCity}, {event.placeAddress}
                   </p>
                 </div>
               </div>
 
               <div className="flex gap-4 items-center">
-                <span className="text-primaria cursor-pointer">
+                <span className="text-primary cursor-pointer">
                   seguir
                 </span>
                 <MoreHorizontal size={22} />
@@ -101,7 +103,7 @@ export default function EventView({event}: pageProps) {
           <div className="px-4 mt-4">
             <div className="flex justify-between items-start">
               <h3 className="font-bold text-2xl">
-                {event.eventName}
+                {event.name}
               </h3>
 
               <div className="text-right">
@@ -115,13 +117,13 @@ export default function EventView({event}: pageProps) {
             </div>
 
             <div className="flex items-center mt-2 gap-2">
-              <span className="text-primaria text-lg">
-                {event.manualLocation?.nomeLocal}
+              <span className="text-primary text-lg">
+                {event.placeName}
               </span>
             </div>
 
-            <p className="text-primaria/60 text-xs">
-              {event.manualLocation?.municipio}
+            <p className="text-primary/60 text-xs">
+              {event.placeCity}, {event.placeAddress}
             </p>
           </div>
 
@@ -130,21 +132,21 @@ export default function EventView({event}: pageProps) {
             <div className="flex gap-8">
               <div className="flex gap-2 items-center">
                 <Heart size={22} />
-                <span>2k</span>
+                <span>{event.reactionCount}</span>
               </div>
 
               <div className="flex gap-2 items-center">
                 <MessageCircle size={22} />
-                <span>20</span>
+                <span>{event.commentCount}</span>
               </div>
 
               <div className="flex gap-2 items-center">
                 <Share2 size={22} />
-                <span>30</span>
+                <span>{event.shareCount}</span>
               </div>
             </div>
 
-            <button className="bg-primaria px-3 py-1.5 rounded-xl text-white text-xs font-bold hover:opacity-90 transition">
+            <button className="bg-primary px-3 py-1.5 rounded-xl text-white text-xs font-bold hover:opacity-90 transition">
               Participar
             </button>
           </div>

@@ -1,33 +1,58 @@
-export type Event = {
-  eventId: string;
-  eventName: string;
-  title: string;
-  descricao: string;
-  categoria: string;
-  tipo: number;
+export interface EventResponse {
+    name : string;
+    eventId: string;
+    eventName: string;
+    title: string;
+    categories: string[];
 
-  data: string; // ISO date
-  inicio: string; // HH:mm
-  fim: string; // HH:mm
+    userName: string;
+    userPhotoUrl: string | null;
 
-  autolocation: {
-    latitude: number;
-    longitude: number;
-  };
+    imgs: Imgs;
 
-  manualLocation: {
-    bairro: string;
-    endereco: string;
-    municipio: string;
-    nomeLocal: string;
-  };
+    eventImages?:Imgs
 
-  imgs: {
-    capa: number;
+    id?:string;
+    latitude?: number;
+    longitude?: number;
+
+    placeId: string;
+    placeName: string;
+    placeAddress: string,
+    placeCity: string;
+    placeLocation: {
+        latitude: number,
+        longitude: number,
+        placeName: string,
+        text: string
+    },
+
+    data: string;
+    inicio: string;
+    fim: string | null;
+
+    descricao: string;
+    tipo: EventType;
+
+
+    valor?: number;
+
+    userId: string; // para navegação ao perfil do organizador
+
+    commentCount: number;
+    reactionCount: number;
+    interestedCount: number;
+    hasReacted: boolean;
+    isSaved: boolean;
+    shareCount: number;
+}
+export enum EventType {
+    pago,
+    gratuito
+}
+type Imgs = {
     urls: string[];
-  };
+    capa: number;
+}
 
-  userId: string;
-  userName: string;
-  userPhotoUrl: string;
-};
+export type Event = EventResponse;
