@@ -1,4 +1,6 @@
 import type { MetadataRoute } from "next";
+import { getUsers } from "@/services/GetUser";
+import { slugifyOrganizerName } from "@/services/organizerProfile";
 
 type SitemapEvent = {
   eventName?: string;
@@ -33,15 +35,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   try {
-    const response = await fetch(EVENTS_API_URL, {
-      next: { revalidate: 3600 },
-    });
+    const [response, users] = await Promise.all([
+      fetch(EVENTS_API_URL, {
+        next: { revalidate: 3600 },
+      }),
+      getUsers(),
+    ]);
 
-    if (!response.ok) {
-      return staticRoutes;
-    }
-
-    const payload = (await response.json()) as SitemapEvent[] | { value?: SitemapEvent[] };
+    const payload = response.ok
+      ? ((await response.json()) as SitemapEvent[] | { value?: SitemapEvent[] })
+      : [];
     const events = Array.isArray(payload) ? payload : payload.value ?? [];
 
     const eventRoutes: MetadataRoute.Sitemap = events
@@ -53,7 +56,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.8,
       }));
 
-    return [...staticRoutes, ...eventRoutes];
+    const organizerRoutes: MetadataRoute.Sitemap = (users ?? [])
+      .filter((user) => user.accountType === 1 && (user.username || user.name))
+      .map((user) => ({
+        url: `${SITE_URL}/organizer/${encodeURIComponent(slugifyOrganizerName(user.username || user.name))}`,
+        lastModified: now,
+        changeFrequency: "weekly",
+        priority: 0.7,
+      }));
+
+    return [...staticRoutes, ...eventRoutes, ...organizerRoutes];
   } catch {
     return staticRoutes;
   }

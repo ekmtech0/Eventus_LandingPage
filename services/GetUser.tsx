@@ -6,6 +6,7 @@ export interface UserBase {
   id?: string;
   name: string;
   username?: string;
+  accountType?: number;
   photo?: string;
   bio?: string;
   email?: string;
@@ -18,7 +19,12 @@ export interface UserBase {
   qtdEvent?: number;
   follow?: number;
   following?: number;
+  location?: {
+    city?: string;
+    country?: string;
+  };
   organizer?: {
+    organizeType?: number;
     descripcion?: string;
     redesSocial?: {
       instagramUrl?: string;
@@ -41,7 +47,7 @@ export interface UserProfileData {
   };
 }
 
-const API_BASE = "https://eventus-1mt4.onrender.com/api";
+const API_BASE = "https://eventus-1mt4.onrender.com/api/";
 
 // Buscar usuário por ID
 export async function getUserProfileById(userId: string): Promise<UserBase | undefined> {
