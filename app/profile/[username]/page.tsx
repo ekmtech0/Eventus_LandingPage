@@ -64,8 +64,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     
     const isOrganizer = user.accountType === ACCOUNT_TYPE.ORGANIZER;
     const userName = user.name || user.username || 'Utilizador';
-    const userBio = user.bio || `Veja o perfil de ${userName} no Eventus - ${isOrganizer ? 'organizador de eventos' : 'descubra eventos e interesses'}`;
+    
+    // Adicionar estatísticas para organizadores no card SEO
+    const statsInfo = isOrganizer 
+      ? `${user.qtdEvent || 0} eventos · ${user.follow || 0} seguidores`
+      : '';
+    const userBio = user.bio 
+      ? (isOrganizer ? `${user.bio} · ${statsInfo}` : user.bio)
+      : (isOrganizer 
+        ? `Veja o perfil de ${userName} no Eventus · ${statsInfo}`
+        : `Veja o perfil de ${userName} no Eventus`);
+    
     const userPhoto = resolveImageUrl(user.photo);
+
     const profileUrl = `${BASE_URL}/profile/${encodeURIComponent(username)}`;
     
     const title = isOrganizer 

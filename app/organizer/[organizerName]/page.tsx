@@ -16,12 +16,16 @@ interface PageProps {
 
 const getOrganizerCached = cache(getOrganizerProfileBySlug);
 
-function buildDescription(description?: string, organizerName?: string) {
-  const fallback = `Veja os eventos, links e informações de ${organizerName || "este organizador"} na Eventus.`;
+function buildDescription(description?: string, organizerName?: string, qtdEvent?: number, followers?: number) {
+  const statsInfo = (qtdEvent !== undefined && followers !== undefined) 
+    ? `${qtdEvent} eventos · ${followers} seguidores`
+    : '';
+  const fallback = `Veja os eventos, links e informações de ${organizerName || "este organizador"} na Eventus${statsInfo ? ` · ${statsInfo}` : ''}.`;
   if (!description) return fallback;
 
   const sanitized = description.replace(/\s+/g, " ").trim();
-  return sanitized.length > 160 ? `${sanitized.slice(0, 157)}...` : sanitized;
+  const withStats = sanitized + (statsInfo ? ` · ${statsInfo}` : '');
+  return withStats.length > 160 ? `${withStats.slice(0, 157)}...` : withStats;
 }
 
 function resolveImageUrl(imageUrl?: string) {
@@ -56,7 +60,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const canonicalSlug = slugifyOrganizerName(organizer.username || organizer.name);
   const canonicalUrl = `${siteUrl}/organizer/${encodeURIComponent(canonicalSlug)}`;
-  const description = buildDescription(organizer.descripcion, organizer.name);
+  const description = buildDescription(organizer.descripcion, organizer.name, organizer.qtdEvent, organizer.followers);
   const imageUrl = resolveImageUrl(organizer.photo);
   const locationKeywords = [organizer.userLocation?.city, organizer.userLocation?.country].filter(Boolean);
 

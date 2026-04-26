@@ -29,17 +29,22 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     };
   }
 
-
   const organizerPhoto = resolveImageUrl(organizer.photo);
   const organizerUrl = `${BASE_URL}/organizer/${encodeURIComponent(params.slug)}`;
+  
+  // Adicionar estatísticas do organizador no card SEO
+  const statsInfo = `${organizer.qtdEvent || 0} eventos · ${organizer.followers || 0} seguidores`;
+  const description = organizer.descripcion 
+    ? `${organizer.descripcion} · ${statsInfo}`
+    : `Veja todos os eventos organizados por ${organizer.name} no Eventus Angola · ${statsInfo}`;
 
   return {
     metadataBase: new URL(BASE_URL),
     title: `${organizer.name} | Perfil do Organizador no Eventus`,
-    description: organizer.descripcion || `Veja todos os eventos organizados por ${organizer.name} no Eventus Angola.`,
+    description,
     openGraph: {
       title: `${organizer.name} - Eventus`,
-      description: organizer.descripcion,
+      description,
       url: organizerUrl,
       siteName: 'Eventus',
       type: 'website',
@@ -56,7 +61,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     twitter: {
       card: 'summary_large_image',
       title: organizer.name,
-      description: organizer.descripcion,
+      description,
       images: [organizerPhoto],
     },
   };
