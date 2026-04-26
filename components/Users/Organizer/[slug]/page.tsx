@@ -73,11 +73,13 @@ export default async function Page({ params }: { params: { slug: string } }) {
   const organizer = await getOrganizerProfileBySlug(params.slug);
 
   return (
+    <>
     <OrganizerProfile 
       organizerName={params.slug} 
       initialOrganizer={organizer} 
       serverResolved={true} 
     />
     <OrganizerCTA></OrganizerCTA>
+    </>
   );
 }
