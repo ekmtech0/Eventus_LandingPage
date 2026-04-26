@@ -1,4 +1,4 @@
-// Organizer description section
+// Organizer description section - SEM card
 'use client';
 
 import React from 'react';
@@ -11,7 +11,7 @@ export default function OrganizerDescription({ descripcion }: OrganizerDescripti
   if (!descripcion) return null;
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
+    <div className="mb-6">
       <h2 className="text-lg font-bold text-[#0F172A] mb-3">Sobre</h2>
       <p className="text-gray-600 leading-relaxed">{descripcion}</p>
     </div>

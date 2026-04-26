@@ -12,19 +12,23 @@ import {
   slugifyOrganizerName,
   type OrganizerProfileData as Organizer,
 } from '@/services/organizerProfile';
+import type { EventResponse } from '@/types/Eventtype';
 
 interface OrganizerProfileProps {
   organizerName?: string;
   initialOrganizer?: Organizer | null;
+  initialEvents?: EventResponse[];
   serverResolved?: boolean;
 }
 
 export default function OrganizerProfile({
   organizerName,
   initialOrganizer = null,
+  initialEvents = [],
   serverResolved = false,
 }: OrganizerProfileProps) {
   const [organizer, setOrganizer] = useState<Organizer | null>(initialOrganizer);
+  const [events, setEvents] = useState<EventResponse[]>(initialEvents);
   const [isLoading, setIsLoading] = useState(!serverResolved && !initialOrganizer);
   const [error, setError] = useState<string | null>(
     serverResolved && !initialOrganizer ? 'Usuário não encontrado' : null,
@@ -136,37 +140,41 @@ export default function OrganizerProfile({
           </div>
         </div>
 
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 -mt-28">
-          {/* Garante que o OrganizerHeader use uma tag <h1> para o nome */}
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 -mt-28">
+          {/* Header com foto, nome, stats e botões */}
           <OrganizerHeader
             organizer={organizer}
             isFollowing={isFollowing}
             handleFollow={handleFollow}
           />
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
-            <div className="lg:col-span-2 space-y-8">
-              {/* Nome e Descrição são vitais aqui */}
-              <section aria-labelledby="about-title">
-                <OrganizerDescription descripcion={organizer.descripcion} />
-              </section>
+          {/* Sobre - fora de card */}
+          <section className="mb-8">
+            <OrganizerDescription descripcion={organizer.descripcion} />
+          </section>
 
-              <section aria-labelledby="events-title">
-                <OrganizerEvents events={organizer.events} />
-              </section>
-            </div>
+          {/* Redes Sociais */}
+          <section className="mb-8">
+            <OrganizerSocialLinks
+              redesSocial={organizer.redesSocial}
+              userLocation={organizer.userLocation}
+            />
+          </section>
 
-            <div className="space-y-8">
-              <OrganizerStats />
-              
-              <OrganizerSocialLinks
-                redesSocial={organizer.redesSocial}
-                userLocation={organizer.userLocation}
-              />
-              
-              <OrganizerCTA />
-            </div>
-          </div>
+          {/* Todos os Eventos */}
+          <section className="mb-8">
+            <OrganizerEvents events={events.length > 0 ? events : (organizer.events as unknown as EventResponse[])} />
+          </section>
+
+          {/* Avaliação - apenas desktop */}
+          <section className="hidden lg:block">
+            <OrganizerStats />
+          </section>
+
+          {/* CTA - Torne-se um Organizador */}
+          <section className="mb-8">
+            <OrganizerCTA />
+          </section>
         </div>
       </main>
     </>

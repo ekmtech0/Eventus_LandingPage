@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import OrganizerProfile from '../Profile/OrganizerProfile'; // Ajusta o caminho
 import { getOrganizerProfileBySlug } from '@/services/organizerProfile';
+import OrganizerCTA from '../Profile/OrganizerCTA';
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://eventusangola.com';
 
@@ -77,5 +78,6 @@ export default async function Page({ params }: { params: { slug: string } }) {
       initialOrganizer={organizer} 
       serverResolved={true} 
     />
+    <OrganizerCTA></OrganizerCTA>
   );
 }

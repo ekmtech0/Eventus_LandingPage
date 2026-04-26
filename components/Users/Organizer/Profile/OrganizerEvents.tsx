@@ -1,30 +1,20 @@
-// Organizer active events section
+// Organizer events section - Todos os Eventos
 'use client';
 
 import React from 'react';
 import Image from 'next/image';
 import { Calendar, MapPin, ArrowRight } from 'lucide-react';
-
-interface Event {
-  id: string;
-  name: string;
-  title?: string;
-  date: string;
-  location: string;
-  image?: string;
-  price?: number;
-  attendees?: number;
-}
+import type { EventResponse } from '@/types/Eventtype';
 
 interface OrganizerEventsProps {
-  events?: Event[];
+  events?: EventResponse[];
 }
 
 export default function OrganizerEvents({ events }: OrganizerEventsProps) {
   if (!events || events.length === 0) {
     return (
       <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
-        <h2 className="text-lg font-bold text-[#0F172A] mb-4">Eventos Ativos</h2>
+        <h2 className="text-lg font-bold text-[#0F172A] mb-4">Todos os Eventos</h2>
         <div className="text-center py-8 text-gray-500">
           <Calendar className="w-12 h-12 mx-auto mb-3 opacity-50" />
           <p>Nenhum evento disponível</p>
@@ -36,23 +26,31 @@ export default function OrganizerEvents({ events }: OrganizerEventsProps) {
   return (
     <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold text-[#0F172A]">Eventos Ativos</h2>
+        <h2 className="text-lg font-bold text-[#0F172A]">Todos os Eventos</h2>
         <button className="text-[#6D28D9] text-sm font-medium flex items-center gap-1 hover:underline">
           Ver todos <ArrowRight className="w-4 h-4" />
         </button>
       </div>
       
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {events.map((event) => (
+        {events.map((event) => {
+          // Get cover image from imgs array
+          const coverIndex = event.imgs?.capa ?? 0;
+          const coverImage = event.imgs?.urls?.[coverIndex];
+          
+          // Format location
+          const location = [event.placeName, event.placeCity].filter(Boolean).join(", ");
+          
+          return (
           <div 
-            key={event.id}
+            key={event.eventId || event.id || event.name}
             className="group bg-[#F8FAFC] rounded-xl overflow-hidden hover:shadow-lg transition-all cursor-pointer"
           >
             {/* Event Image */}
             <div className="relative h-40 overflow-hidden">
-              {event.image ? (
+              {coverImage ? (
                 <Image 
-                  src={event.image} 
+                  src={coverImage} 
                   alt={event.title || event.name}
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -63,9 +61,9 @@ export default function OrganizerEvents({ events }: OrganizerEventsProps) {
                 </div>
               )}
               {/* Price Tag */}
-              {event.price !== undefined && event.price > 0 && (
+              {event.valor !== undefined && event.valor > 0 && (
                 <div className="absolute top-3 right-3 bg-white px-3 py-1 rounded-full text-sm font-bold text-[#6D28D9]">
-                  {event.price.toLocaleString('pt-PT')} AKZ
+                  {event.valor.toLocaleString('pt-PT')} AKZ
                 </div>
               )}
             </div>
@@ -78,7 +76,7 @@ export default function OrganizerEvents({ events }: OrganizerEventsProps) {
               <div className="space-y-2 text-sm text-gray-500">
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4" />
-                  <span>{new Date(event.date).toLocaleDateString('pt-PT', { 
+                  <span>{new Date(event.data).toLocaleDateString('pt-PT', { 
                     day: '2-digit', 
                     month: 'long', 
                     year: 'numeric' 
@@ -86,12 +84,13 @@ export default function OrganizerEvents({ events }: OrganizerEventsProps) {
                 </div>
                 <div className="flex items-center gap-2">
                   <MapPin className="w-4 h-4" />
-                  <span className="line-clamp-1">{event.location}</span>
+                  <span className="line-clamp-1">{location}</span>
                 </div>
               </div>
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

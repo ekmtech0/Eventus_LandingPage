@@ -5,6 +5,8 @@ import {
   getOrganizerProfileBySlug,
   slugifyOrganizerName,
 } from "@/services/organizerProfile";
+import { fetchEventsByUser } from "@/services/GetUser";
+import type { EventResponse } from "@/types/Eventtype";
 
 export const revalidate = 60;
 
@@ -114,10 +116,20 @@ export default async function OrganizerPage({ params }: PageProps) {
   const { organizerName } = await params;
   const organizer = await getOrganizerCached(organizerName);
 
+  // Fetch events for this organizer if we have a user ID
+  let events: EventResponse[] = [];
+  if (organizer?.id) {
+    const userEvents = await fetchEventsByUser(organizer.id);
+    if (userEvents) {
+      events = userEvents;
+    }
+  }
+
   return (
     <OrganizerProfile
       organizerName={organizerName}
       initialOrganizer={organizer}
+      initialEvents={events}
       serverResolved
     />
   );
