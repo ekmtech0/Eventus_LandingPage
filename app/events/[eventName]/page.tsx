@@ -76,7 +76,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
       openGraph: {
         title: `${eventTitle} – Eventus`,
-        description: eventDescription,
+        description: `${eventDescription}
+        👥 Interessados: ${event?.interestedCount ?? 0}
+        ❤️ Gostos: ${event?.reactionCount ?? 0}
+        💬 Comentários: ${event?.commentCount ?? 0}
+        🔁 Partilhas: ${event?.shareCount ?? 0}`,
         url: canonicalUrl,
         type: "website",
         locale: "pt_AO",
