@@ -168,9 +168,10 @@ export async function fetchEventsByUser(userId: string): Promise<EventResponse[]
       return undefined;
     }
 
-    const data = await response.json() as { data: EventResponse[] };
-    console.log("Eventos do usuário recebidos:", data.data);
-    return data.data;
+    // A API retorna um array diretamente, não { data: [...] }
+    const data = await response.json() as EventResponse[];
+    console.log("Eventos do usuário recebidos:", data);
+    return data;
   } catch (error) {
     console.error("Erro ao buscar eventos do usuário:", error);
     return undefined;

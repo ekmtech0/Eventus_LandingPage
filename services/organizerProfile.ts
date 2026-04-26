@@ -48,7 +48,7 @@ export interface OrganizerProfileData {
   following: number;
   userLocation?: AddressFeature;
   places?: Place[];
-  events?: OrganizerEvent[];
+  events?: EventResponse[];
 }
 
 export function slugifyOrganizerName(value: string): string {
@@ -153,7 +153,7 @@ export function mapUserToOrganizerProfile(
     userLocation: user.location
       ? { city: user.location.city, country: user.location.country }
       : undefined,
-    events: events.map(mapEvent),
+    events: events, // Passar eventos diretamente
   };
 }
 
@@ -184,8 +184,13 @@ export async function getOrganizerProfileBySlug(
     return null;
   }
 
-  const userId = user.uid || user.id;
+  // Usar user.id (UUID) que corresponde ao userId nos eventos
+  const userId = user.id;
+  console.log("🔍 OrganizerPage - userId:", userId);
+  console.log("🔍 OrganizerPage - username:", user.username);
+  
   const events = userId ? (await fetchEventsByUser(userId)) ?? [] : [];
+  console.log("🔍 OrganizerPage - events count:", events.length);
 
   return mapUserToOrganizerProfile(user, events);
 }

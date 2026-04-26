@@ -12,23 +12,19 @@ import {
   slugifyOrganizerName,
   type OrganizerProfileData as Organizer,
 } from '@/services/organizerProfile';
-import type { EventResponse } from '@/types/Eventtype';
 
 interface OrganizerProfileProps {
   organizerName?: string;
   initialOrganizer?: Organizer | null;
-  initialEvents?: EventResponse[];
   serverResolved?: boolean;
 }
 
 export default function OrganizerProfile({
   organizerName,
   initialOrganizer = null,
-  initialEvents = [],
   serverResolved = false,
 }: OrganizerProfileProps) {
   const [organizer, setOrganizer] = useState<Organizer | null>(initialOrganizer);
-  const [events, setEvents] = useState<EventResponse[]>(initialEvents);
   const [isLoading, setIsLoading] = useState(!serverResolved && !initialOrganizer);
   const [error, setError] = useState<string | null>(
     serverResolved && !initialOrganizer ? 'Usuário não encontrado' : null,
@@ -163,7 +159,8 @@ export default function OrganizerProfile({
 
           {/* Todos os Eventos */}
           <section className="mb-8">
-            <OrganizerEvents events={events.length > 0 ? events : (organizer.events as unknown as EventResponse[])} />
+            {console.log("🎯 OrganizerProfile - events:", organizer.events)}
+            <OrganizerEvents events={organizer.events} />
           </section>
 
           {/* Avaliação - apenas desktop */}

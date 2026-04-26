@@ -204,3 +204,5 @@ export default async function ProfilePage({ params }: PageProps) {
   
   return <CommonProfile user={normalizedUser} />;
 }
+
+ 
