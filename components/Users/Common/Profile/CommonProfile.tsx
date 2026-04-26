@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Head from 'next/head';
 import ProfileHeader from './ProfileHeader';
 import ProfileStats from './ProfileStats';
 import ProfileInterests from './ProfileInterests';
@@ -65,19 +64,12 @@ export default function CommonProfile({ user = mockUser }: CommonProfileProps) {
 
   const handleFollow = () => setIsFollowing(!isFollowing);
 
-  // Generate SEO metadata
-  const seoTitle = `${user.name} | Perfil Eventus`;
-  const seoDescription = user.bio 
-    ? `${user.bio} - Veja os eventos de @${user.username} no Eventus`
-    : `Descubra os eventos e interesses de ${user.name} no Eventus`;
-  const seoImage = user.photo || '/default-avatar.png';
-
-  // Schema.org Person JSON-LD
+  // Schema.org Person JSON-LD (SEO estruturado para Google)
   const schemaData = {
     '@context': 'https://schema.org',
     '@type': 'Person',
     name: user.name,
-    url: `https://eventus.app/user/${user.username}`,
+    url: `https://eventusangola.com/profile/${user.username}`,
     image: user.photo,
     sameAs: [
       user.instagram ? `https://instagram.com/${user.instagram}` : null,
@@ -89,30 +81,11 @@ export default function CommonProfile({ user = mockUser }: CommonProfileProps) {
 
   return (
     <>
-      <Head>
-        <title>{seoTitle}</title>
-        <meta name="description" content={seoDescription} />
-        
-        {/* Open Graph */}
-        <meta property="og:title" content={seoTitle} />
-        <meta property="og:description" content={seoDescription} />
-        <meta property="og:image" content={seoImage} />
-        <meta property="og:type" content="profile" />
-        <meta property="og:profile:username" content={user.username} />
-        
-        {/* Twitter Card */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={seoTitle} />
-        <meta name="twitter:description" content={seoDescription} />
-        <meta name="twitter:image" content={seoImage} />
-        <meta name="twitter:profile:username" content={user.username} />
-        
-        {/* Schema.org */}
-        <script 
-          type="application/ld+json" 
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }} 
-        />
-      </Head>
+      {/* Schema.org JSON-LD - ajuda Google a entender o conteúdo */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
+      />
 
       <div className="min-h-screen bg-[#F8FAFC]">
         {/* Hero Background */}

@@ -2,40 +2,65 @@ import { Metadata } from 'next';
 import OrganizerProfile from '../Profile/OrganizerProfile'; // Ajusta o caminho
 import { getOrganizerProfileBySlug } from '@/services/organizerProfile';
 
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://eventusangola.com';
+
+function resolveImageUrl(imageUrl?: string): string {
+  if (!imageUrl) {
+    return `${BASE_URL}/og-image.svg`;
+  }
+  if (/^https?:\/\//i.test(imageUrl)) {
+    return imageUrl;
+  }
+  const normalizedPath = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`;
+  return `${BASE_URL}${normalizedPath}`;
+}
+
 // Esta função garante que o Google veja o Nome, Descrição e Imagem sem precisar de JS
+
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const organizer = await getOrganizerProfileBySlug(params.slug);
 
   if (!organizer) {
-    return { title: 'Organizador não encontrado | Eventus' };
+    return {
+      metadataBase: new URL(BASE_URL),
+      title: 'Organizador não encontrado | Eventus',
+      description: 'Este organizador não existe no Eventus.',
+      robots: 'noindex, nofollow',
+    };
   }
 
+
+  const organizerPhoto = resolveImageUrl(organizer.photo);
+  const organizerUrl = `${BASE_URL}/organizer/${encodeURIComponent(params.slug)}`;
+
   return {
+    metadataBase: new URL(BASE_URL),
     title: `${organizer.name} | Perfil do Organizador no Eventus`,
     description: organizer.descripcion || `Veja todos os eventos organizados por ${organizer.name} no Eventus Angola.`,
     openGraph: {
       title: `${organizer.name} - Eventus`,
       description: organizer.descripcion,
-      url: `https://eventusangola.com/organizer/${params.slug}`,
-      siteName: 'Eventus Angola',
+      url: organizerUrl,
+      siteName: 'Eventus',
+      type: 'website',
+      locale: 'pt_AO',
       images: [
         {
-          url: organizer.photo || '/default-share-image.png',
+          url: organizerPhoto,
           width: 1200,
           height: 630,
           alt: `Foto de perfil de ${organizer.name}`,
         },
       ],
-      locale: 'pt_AO',
-      type: 'profile',
     },
     twitter: {
       card: 'summary_large_image',
       title: organizer.name,
       description: organizer.descripcion,
-      images: [organizer.photo || '/default-share-image.png'],
+      images: [organizerPhoto],
     },
   };
+
 }
 
 export default async function Page({ params }: { params: { slug: string } }) {

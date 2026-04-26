@@ -4,6 +4,7 @@ import { getUserByUsername } from '@/services/GetUser';
 import { mapUserToOrganizerProfile } from '@/services/organizerProfile';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { cache } from 'react';
 
 interface PageProps {
   params: Promise<{
@@ -20,15 +21,41 @@ const ACCOUNT_TYPE = {
 // Base URL do site
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://eventusangola.com';
 
+// ISR: revalidar a cada 60 segundos
+export const revalidate = 60;
+
+// Cache para evitar fetch duplicado
+const getUserCached = cache(getUserByUsername);
+
+/**
+ * Resolve a URL da imagem garantindo que seja absoluta.
+ * Fallback para og-image.svg se não houver imagem.
+ */
+function resolveImageUrl(imageUrl?: string): string {
+  if (!imageUrl) {
+    return `${BASE_URL}/og-image.svg`;
+  }
+
+  // Se já for URL absoluta (http:// ou https://), usar diretamente
+  if (/^https?:\/\//i.test(imageUrl)) {
+    return imageUrl;
+  }
+
+  // Se for relativa, garantir que comece com /
+  const normalizedPath = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`;
+  return `${BASE_URL}${normalizedPath}`;
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { username } = await params;
   const decodedUsername = decodeURIComponent(username);
   
   try {
-    const user = await getUserByUsername(decodedUsername);
+    const user = await getUserCached(decodedUsername);
     
     if (!user) {
       return {
+        metadataBase: new URL(BASE_URL),
         title: 'Perfil não encontrado | Eventus',
         description: 'Este perfil não existe no Eventus.',
         robots: 'noindex, nofollow',
@@ -38,8 +65,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const isOrganizer = user.accountType === ACCOUNT_TYPE.ORGANIZER;
     const userName = user.name || user.username || 'Utilizador';
     const userBio = user.bio || `Veja o perfil de ${userName} no Eventus - ${isOrganizer ? 'organizador de eventos' : 'descubra eventos e interesses'}`;
-    const userPhoto = user.photo || `${BASE_URL}/default-avatar.png`;
-    const profileUrl = `${BASE_URL}/profile/${username}`;
+    const userPhoto = resolveImageUrl(user.photo);
+    const profileUrl = `${BASE_URL}/profile/${encodeURIComponent(username)}`;
     
     const title = isOrganizer 
       ? `${userName} | Organizador de Eventos | Eventus`
@@ -52,18 +79,26 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       metadataBase: new URL(BASE_URL),
       title,
       description,
+      keywords: [
+        userName,
+        user.username,
+        'Eventus',
+        'perfil',
+        'Angola',
+        'eventos',
+      ].filter(Boolean) as string[],
       openGraph: {
         title,
         description,
         url: profileUrl,
         siteName: 'Eventus',
-        type: 'profile',
+        type: 'website',
         locale: 'pt_AO',
         images: [
           {
             url: userPhoto,
-            width: 400,
-            height: 400,
+            width: 1200,
+            height: 630,
             alt: `${userName} - ${isOrganizer ? 'Organizador' : 'Utilizador'} Eventus`,
           },
         ],
@@ -98,6 +133,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   } catch (error) {
     console.error('Erro ao gerar metadata:', error);
     return {
+      metadataBase: new URL(BASE_URL),
       title: 'Perfil | Eventus',
       description: 'Veja perfis de utilizadores e organizadores no Eventus',
     };
@@ -108,8 +144,8 @@ export default async function ProfilePage({ params }: PageProps) {
   const { username } = await params;
   const decodedUsername = decodeURIComponent(username);
   
-  // Buscar utilizador pela API
-  const user = await getUserByUsername(decodedUsername);
+  // Buscar utilizador pela API (com cache)
+  const user = await getUserCached(decodedUsername);
   
   // Se utilizador não existir, mostrar 404
   if (!user) {
