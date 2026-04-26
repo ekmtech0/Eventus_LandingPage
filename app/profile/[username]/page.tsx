@@ -18,7 +18,7 @@ const ACCOUNT_TYPE = {
 } as const;
 
 // Base URL do site
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://eventus.pt';
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://eventusangola.com';
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { username } = await params;
@@ -49,6 +49,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const description = userBio.length > 160 ? userBio.substring(0, 157) + '...' : userBio;
     
     return {
+      metadataBase: new URL(BASE_URL),
       title,
       description,
       openGraph: {
@@ -57,6 +58,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         url: profileUrl,
         siteName: 'Eventus',
         type: 'profile',
+        locale: 'pt_AO',
         images: [
           {
             url: userPhoto,
