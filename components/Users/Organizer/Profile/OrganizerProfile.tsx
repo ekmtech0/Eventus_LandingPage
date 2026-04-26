@@ -32,9 +32,7 @@ export default function OrganizerProfile({
   const [isFollowing, setIsFollowing] = useState(false);
 
   useEffect(() => {
-    if (serverResolved) {
-      return;
-    }
+    if (serverResolved) return;
 
     const fetchOrganizer = async () => {
       if (!organizerName) {
@@ -47,13 +45,11 @@ export default function OrganizerProfile({
 
       try {
         const resolvedOrganizer = await getOrganizerProfileBySlug(organizerName);
-
         if (!resolvedOrganizer) {
           setOrganizer(null);
           setError('Usuário não encontrado');
           return;
         }
-
         setOrganizer(resolvedOrganizer);
       } catch (fetchError) {
         console.error('Erro ao buscar organizador:', fetchError);
@@ -73,13 +69,13 @@ export default function OrganizerProfile({
       <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-[#6D28D9] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-500">A carregar...</p>
+          <p className="text-gray-500">A carregar perfil...</p>
         </div>
       </div>
     );
   }
 
-  if (error) {
+  if (error || !organizer) {
     return (
       <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
         <div className="text-center px-4">
@@ -89,51 +85,48 @@ export default function OrganizerProfile({
             </svg>
           </div>
           <h2 className="text-xl font-bold text-gray-800 mb-2">Ops!</h2>
-          <p className="text-gray-500">{error}</p>
+          <p className="text-gray-500">{error || 'Perfil não encontrado'}</p>
         </div>
       </div>
     );
   }
 
-  if (!organizer) {
-    return null;
-  }
-
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://eventusangola.com';
-  const canonicalSlug = slugifyOrganizerName(organizer.username || organizer.name);
-  const organizerUrl = `${siteUrl}/organizer/${encodeURIComponent(canonicalSlug)}`;
+  const canonicalSlug = organizerName || slugifyOrganizerName(organizer.username || organizer.name);
+  const organizerUrl = `${siteUrl}/organizer/${canonicalSlug}`;
 
+  // JSON-LD: Ajuda o Google a mostrar o perfil em formato "Rich Snippet"
   const schemaData = {
     '@context': 'https://schema.org',
     '@type': organizer.organizeType === 'Company' ? 'Organization' : 'Person',
     name: organizer.name,
     description: organizer.descripcion,
     url: organizerUrl,
-    image: organizer.photo,
+    image: organizer.photo || `${siteUrl}/default-avatar.png`,
     sameAs: [
-      organizer.redesSocial?.instagram || null,
-      organizer.redesSocial?.facebook || null,
-      organizer.redesSocial?.tikTok || null,
-      organizer.redesSocial?.website || null,
+      organizer.redesSocial?.instagram,
+      organizer.redesSocial?.facebook,
+      organizer.redesSocial?.tikTok,
     ].filter(Boolean),
-    address: organizer.userLocation
-      ? {
-          '@type': 'PostalAddress',
-          addressLocality: organizer.userLocation.city,
-          addressCountry: organizer.userLocation.country,
-        }
-      : undefined,
-    mainEntityOfPage: organizerUrl,
+    ...(organizer.userLocation && {
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: organizer.userLocation.city,
+        addressCountry: 'AO',
+      },
+    }),
   };
 
   return (
     <>
+      {/* Script de SEO Injetado */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
       />
 
       <main className="min-h-screen bg-[#F8FAFC]">
+        {/* Banner com fundo Gradiente */}
         <div className="h-56 bg-gradient-to-r from-[#6D28D9] via-[#7C3AED] to-[#2563EB] relative overflow-hidden">
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-4 left-4 w-20 h-20 border-4 border-white rounded-full" />
@@ -144,24 +137,36 @@ export default function OrganizerProfile({
         </div>
 
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 -mt-28">
+          {/* Garante que o OrganizerHeader use uma tag <h1> para o nome */}
           <OrganizerHeader
             organizer={organizer}
             isFollowing={isFollowing}
             handleFollow={handleFollow}
           />
 
-          <OrganizerDescription descripcion={organizer.descripcion} />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
+            <div className="lg:col-span-2 space-y-8">
+              {/* Nome e Descrição são vitais aqui */}
+              <section aria-labelledby="about-title">
+                <OrganizerDescription descripcion={organizer.descripcion} />
+              </section>
 
-          <OrganizerSocialLinks
-            redesSocial={organizer.redesSocial}
-            userLocation={organizer.userLocation}
-          />
+              <section aria-labelledby="events-title">
+                <OrganizerEvents events={organizer.events} />
+              </section>
+            </div>
 
-          <OrganizerEvents events={organizer.events} />
-
-          <OrganizerStats />
-
-          <OrganizerCTA />
+            <div className="space-y-8">
+              <OrganizerStats />
+              
+              <OrganizerSocialLinks
+                redesSocial={organizer.redesSocial}
+                userLocation={organizer.userLocation}
+              />
+              
+              <OrganizerCTA />
+            </div>
+          </div>
         </div>
       </main>
     </>

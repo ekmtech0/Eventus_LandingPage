@@ -115,11 +115,39 @@ export async function getUsers(): Promise<UserBase[] | undefined> {
       return undefined;
     }
 
-    const data = await response.json() as { data: UserBase[] };
-    console.log("Usuários recebidos:", data.data);
-    return data.data;
+    // A API retorna um array diretamente, não { data: [...] }
+    const data = await response.json() as UserBase[];
+    console.log("Usuários recebidos:", data);
+    return data;
   } catch (error) {
     console.error("Erro ao buscar usuários:", error);
+    return undefined;
+  }
+}
+
+// Buscar usuário por username
+export async function getUserByUsername(username: string): Promise<UserBase | undefined> {
+  try {
+    // A API não tem endpoint específico, então buscamos todos e filtramos
+    const users = await getUsers();
+    
+    if (!users) {
+      console.error('Erro ao buscar usuários: lista vazia');
+      return undefined;
+    }
+    
+    // Filtrar pelo username (case-insensitive)
+    const user = users.find(u => u.username?.toLowerCase() === username.toLowerCase());
+    
+    if (!user) {
+      console.error(`Usuário não encontrado: ${username}`);
+      return undefined;
+    }
+    
+    console.log('Usuário encontrado:', user);
+    return user;
+  } catch (error) {
+    console.error('Erro ao buscar usuário por username:', error);
     return undefined;
   }
 }
