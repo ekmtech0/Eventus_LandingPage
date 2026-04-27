@@ -159,7 +159,6 @@ export default function OrganizerProfile({
 
           {/* Todos os Eventos */}
           <section className="mb-8">
-            {console.log("🎯 OrganizerProfile - events:", organizer.events)}
             <OrganizerEvents events={organizer.events} />
           </section>
 
