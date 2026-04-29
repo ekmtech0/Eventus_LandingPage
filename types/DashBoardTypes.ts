@@ -1,5 +1,45 @@
 export type UserRole = 'Admin' | 'SuperAdmin';
 
+export type AdminUser = {
+  id: string;
+  name: string;
+  email: string;
+  telefone: string | null;
+  photoUrl: string;
+};
+
+export type AdminLoginResponse = {
+  adm: AdminUser;
+  accessToken: string;
+  refreshToken: string;
+};
+
+export type DashboardResumo = {
+  totalActiveEvents: number;
+  totalEvents: number;
+  totalOrganizers: number;
+  totalPendingEvents: number;
+  totalPlaces: number;
+  totalUsers: number;
+};
+
+export type DashboardEvent = {
+  id: string;
+  name: string;
+  categories: string[];
+  data: string; // ISO date
+  inicio: string; // time string
+  fim: string | null;
+  placeId: string;
+  descricao: string;
+  tipo: number;
+  valor: number;
+  capacidade: number;
+  organizerName: string;
+  placeName: string;
+  status: number;
+};
+
 export interface User {
   id: string;
   name: string;

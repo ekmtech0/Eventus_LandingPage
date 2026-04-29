@@ -1,13 +1,15 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { User } from '@/types/DashBoardTypes';
+import { AdminLoginResponse, User } from '@/types/DashBoardTypes';
+import http from '@/http/api';
+
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
 }
 
@@ -26,35 +28,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(false);
   }, []);
 
-  const login = async (email: string, _password: string) => {
+  const login = async (email: string, _password: string) : Promise<boolean> => {
     setIsLoading(true);
-    // Mock login logic
-    return new Promise<void>((resolve, reject) => {
-      setTimeout(() => {
-        if (email.includes('admin')) {
-          const mockUser: User = {
-            id: '1',
-            name: 'Admin User',
-            email: email,
-            role: email === 'superadmin@eventus.com' ? 'SuperAdmin' : 'Admin',
-            status: 'Active',
-            createdAt: new Date().toISOString(),
-          };
-          setUser(mockUser);
-          localStorage.setItem('eventus_admin_user', JSON.stringify(mockUser));
-          setIsLoading(false);
-          resolve();
-        } else {
-          setIsLoading(false);
-          reject(new Error('Invalid credentials. Use an email with "admin" in it.'));
-        }
-      }, 1000);
-    });
+    
+    try{
+      const response = await http.post<AdminLoginResponse>('adm/auth', { email: email, senha: _password });
+      const { adm, accessToken, refreshToken } = response.data;
+
+      const userData: User = {
+        id: adm?.id,
+        name: adm.name,
+        email: adm.email,
+        role: 'Admin',
+        status: 'Active',
+        avatar: adm.photoUrl,
+        createdAt: new Date().toISOString(),
+      };
+      console.log('Login successful:', response.data);
+      setUser(userData);
+
+      return true;
+    }
+    catch(error){
+    
+      console.error('Login failed:', error);
+      setUser(null);
+
+    }
+
+    setIsLoading(false);
+    return false;
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('eventus_admin_user');
   };
 
   return (

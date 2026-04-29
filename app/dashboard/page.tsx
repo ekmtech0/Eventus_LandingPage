@@ -1,17 +1,21 @@
 'use client';
 
-import { 
-  Users, 
-  Calendar, 
-  CheckCircle2, 
-  Clock, 
+import {
+  Users,
+  Calendar,
+  CheckCircle2,
+  Clock,
   XSquare,
   TrendingUp,
   MapPin,
   ArrowUpRight,
-  ArrowDownRight
+  ArrowDownRight,
+  LucideIcon
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import http from '@/http/api';
+import { DashboardResumo } from '@/types/DashBoardTypes';
 
 const data = [
   { name: 'Jan', events: 400, users: 2400 },
@@ -22,12 +26,41 @@ const data = [
   { name: 'Jun', events: 900, users: 3800 },
 ];
 
-const stats = [
-  { label: 'Total de Usuários', value: '1,284', change: '+12%', icon: Users, color: 'bg-blue-500' },
-  { label: 'Eventos Ativos', value: '86', change: '+5%', icon: Calendar, color: 'bg-purple-500' },
-  { label: 'Aprovações Pendentes', value: '14', change: '-2', icon: Clock, color: 'bg-orange-500' },
-  { label: 'Locais Registrados', value: '42', change: '+8%', icon: MapPin, color: 'bg-green-500' },
-];
+type DashboardStatCard = {
+  label: string;
+  value: string;
+  icon: LucideIcon;
+  color: string;
+};
+
+export const mapDashboardStats = (
+  data: DashboardResumo
+): DashboardStatCard[] => [
+    {
+      label: "Total de Usuários",
+      value: data.totalUsers.toLocaleString("pt-PT"),
+      icon: Users,
+      color: "bg-blue-500",
+    },
+    {
+      label: "Eventos Ativos",
+      value: data.totalActiveEvents.toLocaleString("pt-PT"),
+      icon: Calendar,
+      color: "bg-purple-500",
+    },
+    {
+      label: "Aprovações Pendentes",
+      value: data.totalPendingEvents.toLocaleString("pt-PT"),
+      icon: Clock,
+      color: "bg-orange-500",
+    },
+    {
+      label: "Locais Registrados",
+      value: data.totalPlaces.toLocaleString("pt-PT"),
+      icon: MapPin,
+      color: "bg-green-500",
+    },
+  ];
 
 const recentEvents = [
   { id: '1', title: 'Verão Festival', status: 'Pending', date: '25 Mai, 2024', owner: 'Carlos Alberto' },
@@ -37,15 +70,43 @@ const recentEvents = [
 ];
 
 export default function DashboardPage() {
+
+  const [dashboardData, setDashboardData] = useState<DashboardResumo | null>(null);
+  const [stats, setStats] = useState<DashboardStatCard[]>([]);
+
+  
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await http.get<DashboardResumo>('/adm/dashboard/resumo');
+        console.log('Dashboard stats:', response.data);
+        setDashboardData(response.data);
+        setStats(mapDashboardStats(response.data));
+      } catch (error) {
+        console.error('Failed to fetch dashboard stats:', error);
+      }
+    }
+    fetchStats();
+  }, [])
+
   return (
     <div className="space-y-8">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
         {stats.map((stat, i) => (
-          <div key={i} className="bg-white p-5 rounded-xl border border-border shadow-none">
-            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{stat.label}</p>
+          <div
+            key={i}
+            className="bg-white p-5 rounded-xl border border-border shadow-none"
+          >
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+              {stat.label}
+            </p>
+
             <h3 className="text-2xl font-bold mt-1 text-foreground">
               {stat.value}
-              {stat.label === 'Aprovações Pendentes' && <span className="text-amber-600 ml-2 text-sm font-medium">!</span>}
+
+              {stat.label === "Aprovações Pendentes" && Number(stat.value) > 0 && (
+                <span className="text-amber-600 ml-2 text-sm font-medium">!</span>
+              )}
             </h3>
           </div>
         ))}
@@ -62,33 +123,33 @@ export default function DashboardPage() {
             <ResponsiveContainer width="100%" height={320} minHeight={320}>
               <AreaChart data={data}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F3F4F6" />
-                <XAxis 
-                  dataKey="name" 
-                  axisLine={false} 
-                  tickLine={false} 
+                <XAxis
+                  dataKey="name"
+                  axisLine={false}
+                  tickLine={false}
                   tick={{ fill: '#9CA3AF', fontSize: 11, fontWeight: 500 }}
                   dy={10}
                 />
-                <YAxis 
-                  axisLine={false} 
-                  tickLine={false} 
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
                   tick={{ fill: '#9CA3AF', fontSize: 11, fontWeight: 500 }}
                 />
-                <Tooltip 
-                  contentStyle={{ 
-                    borderRadius: '8px', 
-                    border: '1px solid #E5E7EB', 
+                <Tooltip
+                  contentStyle={{
+                    borderRadius: '8px',
+                    border: '1px solid #E5E7EB',
                     boxShadow: 'none',
                     fontSize: '11px'
-                  }} 
+                  }}
                 />
-                <Area 
-                  type="monotone" 
-                  dataKey="events" 
-                  stroke="#6D28D9" 
+                <Area
+                  type="monotone"
+                  dataKey="events"
+                  stroke="#6D28D9"
                   strokeWidth={2}
-                  fillOpacity={0.05} 
-                  fill="#6D28D9" 
+                  fillOpacity={0.05}
+                  fill="#6D28D9"
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -110,11 +171,10 @@ export default function DashboardPage() {
                       <p className="text-[10px] text-muted-foreground">{event.owner}</p>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                        event.status === 'Pending' ? 'bg-amber-100 text-amber-800' :
-                        event.status === 'Approved' ? 'bg-emerald-100 text-emerald-800' :
-                        'bg-red-100 text-red-800'
-                      }`}>
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${event.status === 'Pending' ? 'bg-amber-100 text-amber-800' :
+                          event.status === 'Approved' ? 'bg-emerald-100 text-emerald-800' :
+                            'bg-red-100 text-red-800'
+                        }`}>
                         {event.status}
                       </span>
                     </td>
@@ -125,10 +185,10 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
-      
+
       <div className="flex gap-5">
         <div className="flex-1 p-5 lg:p-6 bg-indigo-50 border border-indigo-100 rounded-xl font-medium text-xs text-indigo-700">
-           <strong>Security Alert:</strong> 4 new login attempts from unrecognized IP addresses. Review logs in settings.
+          <strong>Security Alert:</strong> 4 new login attempts from unrecognized IP addresses. Review logs in settings.
         </div>
         <div className="flex-1 p-5 lg:p-6 bg-purple-50 border border-purple-100 rounded-xl font-medium text-xs text-purple-700">
           <strong>Operational Tip:</strong> Event moderation queue is currently lower than average. Auto-approval is active.

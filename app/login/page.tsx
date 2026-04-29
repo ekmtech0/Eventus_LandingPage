@@ -20,8 +20,12 @@ export default function Login() {
     setError('');
 
     try {
-      await login(email, password);
-      router.push('/dashboard');
+      var response = await login(email, password);
+      if (response) {
+        router.push('/dashboard');
+        return;
+      }
+      setError('Email ou senha inválidos. Por favor, tente novamente.');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
     } finally {
