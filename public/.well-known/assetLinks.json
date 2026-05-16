@@ -1,0 +1,12 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.eventus",
+    "sha256_cert_fingerprints": [
+      "B7:F0:88:89:E0:A8:E3:38:84:03:72:0B:AF:8E:EA:0E:31:28:02:D2:20:4B:78:CC:EA:46:DE:94:EF:16:95:1D",
+      "2E:FF:18:09:E7:66:6A:23:C1:9C:16:65:5D:0C:28:54:4F:CA:FE:3C:6E:01:C5:06:93:22:35:6F:6C:C4:DD:F2",
+      "EE:E6:7C:EC:2D:46:6E:C1:90:13:D9:73:9C:C3:12:BB:C6:75:0A:B7:3E:ED:AB:DA:50:06:CA:C8:D3:E6:C0:93"
+    ]
+  }
+}]
