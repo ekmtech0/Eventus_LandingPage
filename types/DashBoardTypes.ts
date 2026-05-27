@@ -40,6 +40,39 @@ export type DashboardEvent = {
   status: number;
 };
 
+export interface AdminReport {
+  id: string;
+  eventId: string;
+  eventName: string;
+  reporterName: string;
+  reason: string;
+  details: string;
+  reportedAt: string;
+  status: 'Pending' | 'Dismissed' | 'Suspended' | string;
+}
+
+export interface AdminReportItem {
+  id: string;
+  reporterName: string;
+  reporterAvatarUrl?: string;
+  reportedAt: string;
+  reason: string;
+  details: string;
+}
+
+export interface ReportedEvent {
+  eventId: string;
+  eventName: string;
+  eventImageUrl: string;
+  organizerName: string;
+  organizerAvatarUrl?: string;
+  totalReports: number;
+  pendingReports: number;
+  reports: AdminReportItem[];
+}
+
+export type AdminReportAction = 'Dismiss' | 'SuspendEvent';
+
 type So = {}
 
 export interface User {

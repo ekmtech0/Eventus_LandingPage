@@ -6,6 +6,7 @@ import {
   Users, 
   MapPin, 
   Settings, 
+  Flag, 
   LogOut
 } from "lucide-react";
 
@@ -16,6 +17,7 @@ import { usePathname } from "next/navigation";
 const navItems = [
   { icon: LayoutDashboard, label: "Geral", path: "/dashboard" },
   { icon: Calendar, label: "Eventos", path: "/dashboard/events" },
+  { icon: Flag, label: "Denúncias", path: "/dashboard/reports" },
   { icon: Users, label: "Usuários", path: "/dashboard/users" },
   { icon: MapPin, label: "Locais", path: "/dashboard/venues" },
   { icon: Settings, label: "Configurações", path: "/dashboard/settings" },
