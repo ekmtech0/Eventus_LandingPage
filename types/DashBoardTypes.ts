@@ -58,6 +58,7 @@ export interface AdminReportItem {
   reportedAt: string;
   reason: string;
   details: string;
+  status?: string;
 }
 
 export interface ReportedEvent {
@@ -69,11 +70,17 @@ export interface ReportedEvent {
   totalReports: number;
   pendingReports: number;
   reports: AdminReportItem[];
+  eventStatus?: string;
+  status?: string;
+  lastAction?: string;
+  actionTaken?: string;
+  isIgnored?: boolean;
+  isSuspended?: boolean;
+  aiSummary?: string | null;
+  summary?: string | null;
 }
 
 export type AdminReportAction = 'Dismiss' | 'SuspendEvent';
-
-type So = {}
 
 export interface User {
   id: string;

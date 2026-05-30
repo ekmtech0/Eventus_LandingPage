@@ -34,6 +34,8 @@ export type DashboardEventDetails = {
   interestedCount: number;
   tipo: number;
   status: number;
+  aiModerationNotes?: string | null;
+  trustScore?: number | null;
 };
 
 export async function getDashboardEvents() {

@@ -132,6 +132,52 @@ export function EventDetailsModal({
                       {isLoading ? 'A carregar...' : (details?.descricao ?? '-')}
                     </p>
                   </div>
+
+                  <div
+                    className={`rounded-xl border p-4 ${
+                      details?.status === EventStatus.Rejected
+                        ? 'border-red-200 bg-red-50 text-red-700'
+                        : details?.status === EventStatus.Pending
+                          ? 'border-amber-200 bg-amber-50 text-amber-800'
+                          : 'border-zinc-800 bg-zinc-900 text-zinc-300'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2 text-sm font-semibold">
+                        <span
+                          className={`h-2.5 w-2.5 rounded-full ${
+                            details?.status === EventStatus.Rejected || details?.status === EventStatus.Pending
+                              ? 'animate-pulse'
+                              : ''
+                          } ${
+                            details?.status === EventStatus.Rejected
+                              ? 'bg-red-500'
+                              : details?.status === EventStatus.Pending
+                                ? 'bg-amber-500'
+                                : 'bg-green-500'
+                          }`}
+                        />
+                        <span>
+                          {details?.status === EventStatus.Rejected
+                            ? 'Veredito da IA: Rejeitado'
+                            : details?.status === EventStatus.Pending
+                              ? 'Veredito da IA: Pendente'
+                              : 'Veredito da IA: Aprovado'}
+                        </span>
+                      </div>
+
+                      {details?.trustScore !== undefined && details?.trustScore !== null ? (
+                        <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium bg-white/5 border border-white/5">
+                          <span className="text-sm font-bold">{details.trustScore}%</span>
+                          <span className="text-xs text-muted-foreground">TrustScore</span>
+                        </div>
+                      ) : null}
+                    </div>
+
+                    <p className="mt-2 text-sm italic text-inherit">
+                      {details?.aiModerationNotes ?? 'Sem notas da IA disponíveis.'}
+                    </p>
+                  </div>
                 </div>
 
                 <div className="space-y-4">
