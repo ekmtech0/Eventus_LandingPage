@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { X, User, ShieldAlert, Calendar, Image as ImageIcon, Loader2, Flag } from 'lucide-react';
+import Image from 'next/image';
+import { X, User, ShieldAlert, Calendar, Image as ImageIcon, Loader2, Flag, TriangleAlert } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import type { ReportedEvent, AdminReportAction } from '@/types/DashBoardTypes';
+import type { ReportedEvent } from '@/types/DashBoardTypes';
 import { formatDate } from '../../events/format';
 
 export function ReportDetailsModal({
@@ -18,9 +19,11 @@ export function ReportDetailsModal({
   onSuspendEvent: (eventId: string) => Promise<void>;
 }) {
   const [isActionLoading, setIsActionLoading] = useState(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   const isOpen = event !== null;
   const reportCount = event?.reports.length ?? 0;
+  const isResolved = event?.pendingReports === 0;
 
   const handleIgnoreAll = async () => {
     if (!event) return;
@@ -34,12 +37,11 @@ export function ReportDetailsModal({
 
   const handleSuspendEvent = async () => {
     if (!event) return;
-    const confirmed = window.confirm('Deseja suspender este evento e encerrar todas as denúncias associadas?');
-    if (!confirmed) return;
 
     setIsActionLoading(true);
     try {
       await onSuspendEvent(event.eventId);
+      setIsConfirmOpen(false);
     } finally {
       setIsActionLoading(false);
     }
@@ -93,7 +95,14 @@ export function ReportDetailsModal({
                   {/* Card Minimalista do Evento */}
                   <div className="rounded-2xl border border-slate-100 overflow-hidden bg-white shadow-sm">
                     {event?.eventImageUrl ? (
-                      <img src={event.eventImageUrl} alt={event.eventName} className="w-full h-52 object-cover" />
+                      <Image
+                        src={event.eventImageUrl}
+                        alt={event.eventName}
+                        width={800}
+                        height={208}
+                        unoptimized
+                        className="h-52 w-full object-cover"
+                      />
                     ) : (
                       <div className="w-full h-52 bg-slate-50 flex flex-col items-center justify-center border-b border-slate-100">
                         <ImageIcon className="w-8 h-8 text-slate-300 mb-2" />
@@ -124,6 +133,13 @@ export function ReportDetailsModal({
 
               {/* LADO DIREITO: FEED DE DENÚNCIAS (Scroll Integrado e Fundo Subtil) */}
               <div className="p-8 bg-slate-50/50 border-l border-slate-100 overflow-y-auto">
+                <div className="mb-4 rounded-xl border border-zinc-800 bg-zinc-900 p-4 text-zinc-100">
+                  <p className="text-sm font-semibold text-zinc-100">Resumo Automatizado das Denúncias (IA)</p>
+                  <p className="mt-2 text-sm text-zinc-300 italic">
+                    {event?.aiSummary ?? event?.summary ?? 'Ainda não existe resumo automatizado disponível para este evento.'}
+                  </p>
+                </div>
+
                 <h4 className="text-sm font-bold uppercase tracking-wider text-slate-500 mb-5 flex items-center gap-2">
                   <Flag className="w-4 h-4" /> Histórico de Denúncias
                 </h4>
@@ -135,7 +151,14 @@ export function ReportDetailsModal({
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center overflow-hidden">
                             {report.reporterAvatarUrl ? (
-                              <img src={report.reporterAvatarUrl} alt={report.reporterName} className="h-full w-full rounded-full object-cover" />
+                              <Image
+                                src={report.reporterAvatarUrl}
+                                alt={report.reporterName}
+                                width={32}
+                                height={32}
+                                unoptimized
+                                className="h-full w-full rounded-full object-cover"
+                              />
                             ) : (
                               <User className="w-4 h-4 text-slate-500" />
                             )}
@@ -173,26 +196,80 @@ export function ReportDetailsModal({
               <button
                 type="button"
                 onClick={handleIgnoreAll}
-                disabled={isActionLoading}
-                className="w-full sm:w-auto h-11 px-6 rounded-xl text-sm font-bold border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition-all flex items-center justify-center gap-2 shadow-sm"
+                disabled={isActionLoading || isResolved}
+                className="w-full sm:w-auto h-11 px-6 rounded-xl text-sm font-bold border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition-all flex items-center justify-center gap-2 shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
+                title={isResolved ? 'Este evento já foi tratado porque não tem denúncias pendentes.' : undefined}
               >
                 {isActionLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-                Ignorar Denúncias
+                {isResolved ? 'Evento Já Analisado' : 'Ignorar Denúncias'}
               </button>
               
               <button
                 type="button"
-                onClick={handleSuspendEvent}
-                disabled={isActionLoading}
-                className="w-full sm:w-auto h-11 px-6 rounded-xl text-sm font-bold bg-red-600 border-red-600 text-white hover:bg-red-700 transition-all flex items-center justify-center gap-2 shadow-sm"
+                onClick={() => setIsConfirmOpen(true)}
+                disabled={isActionLoading || isResolved}
+                className="w-full sm:w-auto h-11 px-6 rounded-xl text-sm font-bold bg-red-600 border-red-600 text-white hover:bg-red-700 transition-all flex items-center justify-center gap-2 shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
+                title={isResolved ? 'Este evento já foi tratado porque não tem denúncias pendentes.' : undefined}
               >
                 {isActionLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-                Suspender Evento
+                {isResolved ? 'Evento Já Analisado' : 'Suspender Evento'}
               </button>
             </div>
           </motion.div>
         </motion.div>
       ) : null}
+
+      <AnimatePresence>
+        {isConfirmOpen ? (
+          <motion.div
+            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsConfirmOpen(false)}
+          >
+            <motion.div
+              className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl"
+              initial={{ scale: 0.96, opacity: 0, y: 8 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.96, opacity: 0, y: 8 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-50 text-red-600">
+                  <TriangleAlert className="h-6 w-6" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-slate-900">Suspender Evento?</h3>
+                  <p className="text-sm text-slate-500">Esta ação irá ocultar o evento da plataforma e fechar todas as denúncias relacionadas.</p>
+                </div>
+              </div>
+
+              <p className="mt-4 text-sm text-slate-500">
+                O organizador será notificado. Deseja continuar?
+              </p>
+
+              <div className="mt-6 flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsConfirmOpen(false)}
+                  className="h-11 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSuspendEvent}
+                  disabled={isActionLoading}
+                  className="h-11 rounded-xl bg-red-600 px-4 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-60"
+                >
+                  {isActionLoading ? 'A processar...' : 'Sim, Suspender'}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </AnimatePresence>
   );
 } 

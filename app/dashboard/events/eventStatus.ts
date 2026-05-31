@@ -4,8 +4,8 @@ export enum EventStatus {
   Published = 2,
   Active = 3,
   Cancelled = 4,
-  Rejected = 5,
-  Completed = 6,
+  Rejected = 6,
+  Completed = 7,
 }
 
 export const EVENT_STATUS_FILTERS: Array<{ label: string; value: number | 'All' }> = [

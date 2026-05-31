@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Search } from 'lucide-react';
 import { ReportsTable } from './components/ReportsTable';
 import { ReportDetailsModal } from './components/ReportDetailsModal';
 import { getAdminReports, updateAdminEventReportsAction } from './reportsApi';
@@ -12,6 +13,8 @@ export default function ReportsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterStatus, setFilterStatus] = useState<'All' | 'Pending' | 'Ignored' | 'Suspended'>('Pending');
 
   useEffect(() => {
     let active = true;
@@ -43,8 +46,43 @@ export default function ReportsPage() {
     return () => window.clearTimeout(timer);
   }, [successMessage]);
 
+  const filteredReports = useMemo(() => {
+    const searchLower = searchQuery.toLowerCase();
+
+    return events.filter((event) => {
+      const matchesSearch =
+        event.eventName.toLowerCase().includes(searchLower) ||
+        event.eventId.toLowerCase().includes(searchLower);
+
+      if (!matchesSearch) return false;
+
+      if (filterStatus === 'All') return true;
+
+      if (filterStatus === 'Pending') {
+        return event.pendingReports > 0;
+      }
+
+      if (filterStatus === 'Ignored') {
+        return (
+          event.pendingReports === 0 &&
+          event.reports.length > 0 &&
+          event.reports.every((report) => report.status === 'Dismissed')
+        );
+      }
+
+      if (filterStatus === 'Suspended') {
+        return (
+          event.pendingReports === 0 &&
+          event.reports.some((report) => report.status === 'Reviewed' || report.status === 'Suspended')
+        );
+      }
+
+      return true;
+    });
+  }, [events, filterStatus, searchQuery]);
+
   const handleViewReports = (eventId: string) => {
-    const event = events.find((item) => item.eventId === eventId) ?? null;
+    const event = filteredReports.find((item) => item.eventId === eventId) ?? null;
     setSelectedEvent(event);
   };
 
@@ -76,17 +114,15 @@ export default function ReportsPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="space-y-2">
-          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-emerald-700">Painel de Moderação</p>
           <div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Eventos Denunciados</h1>
-            <p className="max-w-2xl text-sm text-slate-600 mt-2">Este painel agrupa eventos com denúncias. Selecione um evento e revise todas as denúncias recebidas antes de tomar decisão.</p>
+            <h1 className="text-xl font-bold tracking-tight mb-1">Eventos Denunciados</h1>
+            <p className="text-xs text-muted-foreground font-medium italic">Este painel agrupa eventos com denúncias. Selecione um evento e revise todas as denúncias recebidas antes de tomar decisão.</p>
           </div>
         </div>
       </div>
 
       <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
-        <div className="px-6 py-5 border-b border-slate-200 bg-slate-50 space-y-3">
-          <p className="text-sm text-slate-500">Listagem de eventos que receberam denúncias. A informação principal está agrupada por evento, não por denúncia individual.</p>
+        {/* <div className="px-6 py-5 border-b border-slate-200 bg-slate-50 space-y-3">
           {successMessage ? (
             <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">
               {successMessage}
@@ -97,10 +133,47 @@ export default function ReportsPage() {
               {error}
             </div>
           ) : null}
+        </div> */}
+
+        <div className="p-4 border-b border-border flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder="Filtrar denúncias..."
+                className="w-56 rounded-lg border border-transparent bg-muted/30 py-1.5 pl-9 pr-4 text-xs outline-none transition-all focus:border-border focus:bg-white"
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+              />
+            </div>
+
+            <div className="flex flex-wrap gap-1">
+              {[
+                { label: 'Todos', value: 'All' },
+                { label: 'Pendentes', value: 'Pending' },
+                { label: 'Ignorados', value: 'Ignored' },
+                { label: 'Suspensos', value: 'Suspended' },
+              ].map((filter) => (
+                <button
+                  key={filter.value}
+                  type="button"
+                  onClick={() => setFilterStatus(filter.value as 'All' | 'Pending' | 'Ignored' | 'Suspended')}
+                  className={`rounded-lg px-3 py-1.5 text-[11px] font-bold transition-all ${
+                    filterStatus === filter.value
+                      ? 'bg-foreground text-background'
+                      : 'text-muted-foreground hover:bg-muted font-semibold'
+                  }`}
+                >
+                  {filter.label}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
         <ReportsTable
-          reports={events}
+          reports={filteredReports}
           isLoading={isLoading}
           error={error}
           onViewDetails={handleViewReports}
