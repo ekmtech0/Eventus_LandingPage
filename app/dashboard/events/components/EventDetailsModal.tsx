@@ -58,7 +58,11 @@ export function EventDetailsModal({
   const images = details?.imgs?.urls ?? [];
   const coverIndex = details?.imgs?.capa ?? 0;
 
-  const canDecide = details?.status === EventStatus.Pending && !isLoading && !isStatusUpdating;
+  const isStatusLocked = details?.status === EventStatus.Draft || details?.status === EventStatus.Completed;
+  const canDecide = Boolean(details) && !isStatusLocked && !isLoading && !isStatusUpdating;
+  const statusActionTitle = isStatusLocked
+    ? 'Eventos Draft ou Completed nao podem ter o estado alterado.'
+    : 'Alterar estado do evento';
 
   const headerSubtitle = useMemo(() => {
     if (details) {
@@ -265,7 +269,7 @@ export function EventDetailsModal({
                 disabled={!canDecide}
                 onClick={() => handleUpdateStatus(EventStatus.Published)}
                 className="px-4 py-2 rounded-lg text-xs font-bold bg-foreground text-background disabled:opacity-50 disabled:cursor-not-allowed"
-                title={details?.status !== EventStatus.Pending ? 'Apenas eventos Pending podem ser publicados.' : 'Publicar'}
+                title={statusActionTitle}
               >
                 Publicar
               </button>
@@ -274,7 +278,7 @@ export function EventDetailsModal({
                 disabled={!canDecide}
                 onClick={() => handleUpdateStatus(EventStatus.Rejected)}
                 className="px-4 py-2 rounded-lg text-xs font-bold bg-red-600 text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                title={details?.status !== EventStatus.Pending ? 'Apenas eventos Pending podem ser rejeitados.' : 'Rejeitar'}
+                title={statusActionTitle}
               >
                 Rejeitar
               </button>
