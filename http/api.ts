@@ -1,9 +1,9 @@
 import axios from "axios";
 
 const http = axios.create({
-        baseURL: "http://192.168.100.6:5000/api",
+        // baseURL: "http://192.168.100.6:5000/api",
         // baseURL: "http://192.168.8.200:5000/api",
-    //    baseURL: "https://eventus-1mt4.onrender.com/api", 
+       baseURL: "https://eventus-1mt4.onrender.com/api", 
         //  baseURL: "http://192.168.100.117:5000/api", Casa do Dantas
         //  baseURL: "http://192.168.8.200:5000/api", Minha Casa
         //  baseURL: "http://192.168.0.110:5000/api",  //Loja do Cota Silva
